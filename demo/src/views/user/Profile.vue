@@ -32,13 +32,14 @@
             </div>
             <div class="addr-text">{{ a.region.join(' ') }} {{ a.detail }}</div>
             <div class="addr-ops">
+              <el-button text size="small" @click="openEdit(a)">修改</el-button>
               <el-button v-if="!a.isDefault" text size="small" @click="store.setDefaultAddress(a.id)">设为默认</el-button>
               <el-popconfirm title="确认删除该地址？" @confirm="onRemoveAddress(a)">
                 <template #reference><el-button text size="small" type="danger">删除</el-button></template>
               </el-popconfirm>
             </div>
           </div>
-          <div class="card addr add" @click="addrVisible = true">
+          <div class="card addr add" @click="openAdd">
             <el-icon><Plus /></el-icon>新增收货地址
           </div>
         </div>
@@ -59,7 +60,7 @@
       </el-tab-pane>
     </el-tabs>
 
-    <el-dialog v-model="addrVisible" title="新增收货地址" width="460px">
+    <el-dialog v-model="addrVisible" :title="editingId ? '修改收货地址' : '新增收货地址'" width="460px">
       <el-form :model="addrForm" label-width="76px">
         <el-form-item label="收货人"><el-input v-model="addrForm.receiver" /></el-form-item>
         <el-form-item label="手机号"><el-input v-model="addrForm.phone" /></el-form-item>
@@ -71,7 +72,7 @@
       </el-form>
       <template #footer>
         <el-button @click="addrVisible = false">取消</el-button>
-        <el-button type="primary" @click="onAddAddress">保存</el-button>
+        <el-button type="primary" @click="onSaveAddress">保存</el-button>
       </template>
     </el-dialog>
   </div>
@@ -88,6 +89,7 @@ import store from '../../store'
 const tab = ref('info')
 const saving = ref(false)
 const addrVisible = ref(false)
+const editingId = ref(null)
 
 const profile = reactive({
   nickname: store.state.user?.nickname || '',
@@ -129,18 +131,54 @@ function onChangePwd() {
   ElMessage.info('演示环境：修改密码流程省略，真实项目需校验原密码')
 }
 
-function onAddAddress() {
+function resetAddrForm() {
+  Object.assign(addrForm, {
+    receiver: '',
+    phone: '',
+    region: ['江苏省', '南京市', '鼓楼区'],
+    detail: '',
+    isDefault: false
+  })
+}
+
+function openAdd() {
+  editingId.value = null
+  resetAddrForm()
+  addrVisible.value = true
+}
+
+function openEdit(a) {
+  editingId.value = a.id
+  Object.assign(addrForm, {
+    receiver: a.receiver,
+    phone: a.phone,
+    region: [...a.region],
+    detail: a.detail,
+    isDefault: !!a.isDefault
+  })
+  addrVisible.value = true
+}
+
+function onSaveAddress() {
   if (!addrForm.receiver || !addrForm.phone || !addrForm.detail) {
     ElMessage.warning('请填写收货人、手机号与详细地址')
     return
   }
-  store.addAddress({ ...addrForm, region: [...addrForm.region] })
+  if (!/^1[3-9]\d{9}$/.test(addrForm.phone)) {
+    ElMessage.warning('手机号格式不正确')
+    return
+  }
+  const payload = { ...addrForm, region: [...addrForm.region] }
+  if (editingId.value) {
+    store.updateAddress(editingId.value, payload)
+    ElMessage.success('地址已修改')
+  } else {
+    store.addAddress(payload)
+    ElMessage.success('地址已添加')
+  }
   addrVisible.value = false
-  ElMessage.success('地址已添加')
-  addrForm.receiver = ''
-  addrForm.phone = ''
-  addrForm.detail = ''
-  addrForm.isDefault = false
+  editingId.value = null
+  resetAddrForm()
 }
 
 function onRemoveAddress(a) {
@@ -164,7 +202,7 @@ function onAddCart(p) {
 .addr-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
 .addr-head { display: flex; align-items: center; gap: 8px; }
 .addr-text { font-size: 13px; color: var(--ygc-muted); margin: 8px 0; line-height: 1.6; }
-.addr-ops { display: flex; gap: 6px; }
+.addr-ops { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
 .addr.add { display: flex; align-items: center; justify-content: center; gap: 6px; color: var(--ygc-muted); border-style: dashed; cursor: pointer; min-height: 120px; }
 .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
 </style>

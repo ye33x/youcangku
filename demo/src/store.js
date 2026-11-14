@@ -139,6 +139,13 @@ export const store = {
     state.addresses.forEach((a) => (a.isDefault = a.id === id))
   },
 
+  updateAddress(id, payload) {
+    const addr = state.addresses.find((a) => a.id === id)
+    if (!addr) return
+    if (payload.isDefault) state.addresses.forEach((a) => (a.isDefault = a.id === id))
+    Object.assign(addr, payload, { id })
+  },
+
   // ---------------- 订单 ----------------
   async createOrder({ items, address, remark }) {
     await sleep(demoConfig.latency)
