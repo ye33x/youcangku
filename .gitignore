@@ -19,6 +19,12 @@ __pycache__/
 .venv/
 venv/
 
+# Java / 构建产物
+*.class
+*.iml
+.mvn/
+!.mvn/wrapper/maven-wrapper.properties
+
 # 日志与临时文件
 *.log
 *.tmp
