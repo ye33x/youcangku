@@ -3,10 +3,10 @@
     <div class="block">
       <div class="label">当前身份</div>
       <div class="row-gap"><el-tag :type="roleTag">{{ roleText }}</el-tag></div>
-      <div class="row-gap mt-8">
-        <el-button size="small" @click="switchTo('USER')">切到用户端</el-button>
-        <el-button size="small" @click="switchTo('MERCHANT')">切到商家端</el-button>
-        <el-button size="small" @click="switchTo('ADMIN')">切到管理端</el-button>
+      <div class="role-switch mt-8">
+        <el-button size="small" @click="switchTo('USER')">用户端</el-button>
+        <el-button size="small" @click="switchTo('MERCHANT')">商家端</el-button>
+        <el-button size="small" @click="switchTo('ADMIN')">管理端</el-button>
       </div>
     </div>
 
@@ -88,6 +88,9 @@ function onReset() {
 <style scoped>
 .block { margin-bottom: 18px; }
 .label { font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+/* 三个角色按钮等宽三等分，避免 flex 换行后宽度参差 */
+.role-switch { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.role-switch .el-button { width: 100%; margin-left: 0; }
 .tip { font-size: 12px; margin-top: 6px; line-height: 1.6; }
 .link { display: block; padding-left: 0; font-size: 13px; justify-content: flex-start; }
 </style>

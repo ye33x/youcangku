@@ -20,9 +20,9 @@
       <aside class="filters card">
         <div class="filter-title">分类</div>
         <el-tree :data="treeData" :props="{ label: 'name', children: 'children' }" highlight-current
-          :expand-on-click-node="false" @node-click="onCategoryClick" />
+          default-expand-all :expand-on-click-node="false" @node-click="onCategoryClick" />
         <div class="filter-title mt-16">价格区间</div>
-        <div class="row-gap">
+        <div class="price-ranges">
           <el-button v-for="p in priceRanges" :key="p.label" size="small"
             :type="rangeActive === p.label ? 'primary' : 'default'" @click="onPriceRange(p)">
             {{ p.label }}
@@ -178,6 +178,12 @@ onMounted(loadCats)
 .layout { display: grid; grid-template-columns: 240px 1fr; gap: 18px; align-items: start; }
 .filters { position: sticky; top: 84px; }
 .filter-title { font-size: 13px; font-weight: 600; margin-bottom: 10px; }
+/* 两列等宽网格：四个价格区间按钮宽度一致、左右边缘对齐 */
+.price-ranges { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.price-ranges .el-button {
+  width: 100%;
+  margin-left: 0; /* 覆盖 Element Plus 相邻按钮默认的 12px 左边距，否则换行后错位 */
+}
 .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
 .pager { display: flex; justify-content: center; margin-top: 20px; }
 </style>
