@@ -1,0 +1,22 @@
+{
+  "name": "youguocang-demo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "优果仓 界面与流程验证 Demo（纯前端，无后端）",
+  "scripts": {
+    "dev": "vite --port 5175",
+    "build": "vite build",
+    "preview": "vite preview --port 5175"
+  },
+  "dependencies": {
+    "@element-plus/icons-vue": "^2.3.1",
+    "element-plus": "^2.7.6",
+    "vue": "^3.4.31",
+    "vue-router": "^4.4.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.5",
+    "vite": "^5.3.3"
+  }
+}

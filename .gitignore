@@ -33,3 +33,6 @@ venv/
 
 # 工具本地数据
 .workbuddy/
+
+# 演示前端临时目录
+demo/.tmp/
