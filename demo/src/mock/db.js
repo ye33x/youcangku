@@ -150,9 +150,9 @@ export const afterSales = [
 ]
 
 export const reviews = [
-  { id: 3001, orderId: 1004, productId: 5, productName: '伊朗开心果 400g', userName: '干果控', score: 4, content: '开心果开口率不错，就是盐味稍重。', status: '待审核', reply: '', createdAt: day(8) },
+  { id: 3001, orderId: 1004, productId: 5, productName: '伊朗开心果 400g', userName: '干果控', score: 4, content: '开心果开口率不错，就是盐味稍重。', status: '已通过', auditRemark: '未命中关键词，自动通过', reply: '', createdAt: day(8) },
   { id: 3002, orderId: 1003, productId: 7, productName: '新疆吐鲁番葡萄干 500g', userName: '张伟', score: 5, content: '葡萄干很甜，颗粒大，回购第二次了。', status: '已通过', reply: '感谢支持，我们会继续保持品质！', createdAt: day(2) },
-  { id: 3003, orderId: 1007, productId: 11, productName: '原味葵花籽 500g', userName: '王强', score: 5, content: '瓜子很饱满，原味不腻。', status: '待审核', reply: '', createdAt: day(18) },
+  { id: 3003, orderId: 1007, productId: 11, productName: '原味葵花籽 500g', userName: '王强', score: 5, content: '瓜子很饱满，想囤货的加微信 abc123', matchedKeywords: ['加微信'], status: '待人工复核', reply: '', createdAt: day(18) },
   { id: 3004, orderId: 1001, productId: 2, productName: '云南漾濞核桃仁 250g', userName: '核桃爱好者', score: 2, content: '有点受潮，口感不够脆。', status: '已拒绝', reply: '', createdAt: day(5), auditRemark: '含主观差评，无凭证' }
 ]
 
@@ -195,3 +195,9 @@ export const logs = Array.from({ length: 26 }, (_, i) => {
     createdAt: day(i)
   }
 })
+
+// 命中关键词、等待人工复核的评价（用于演示批量处理）
+reviews.push(
+  { id: 3005, orderId: 1002, productId: 6, productName: '盐焗开心果 500g', userName: '办公室零食', score: 3, content: '口感一般，想退的直接私聊我', matchedKeywords: ['私聊'], status: '待人工复核', auditRemark: '命中关键词：私聊', reply: '', createdAt: day(4) },
+  { id: 3006, orderId: 1008, productId: 13, productName: '每日坚果混合装 750g（30 袋）', userName: '健身补给', score: 1, content: '这家是骗子！大家别买，我要投诉', matchedKeywords: ['骗子', '投诉'], status: '待人工复核', auditRemark: '命中关键词：骗子、投诉', reply: '', createdAt: day(6) }
+)

@@ -44,6 +44,7 @@ export const ORDER_STATUS = {
 }
 
 export const AUDIT_STATUS = {
+  待人工复核: { type: 'warning' },
   待审核: { type: 'warning' },
   已通过: { type: 'success' },
   已拒绝: { type: 'danger' }

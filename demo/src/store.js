@@ -5,6 +5,7 @@ import {
   addresses as seedAddresses, logs
 } from './mock/db'
 import { demoConfig, fakeRequest, sleep } from './mock/config'
+import { autoAudit } from './mock/keywords'
 
 const ADMIN = { id: 1, username: 'admin', nickname: '平台管理员' }
 
@@ -263,7 +264,7 @@ export const store = {
       userName: state.user?.nickname || '匿名用户',
       score,
       content,
-      status: '待审核',
+      ...autoAudit(content),
       reply: '',
       createdAt: new Date().toISOString().slice(0, 19).replace('T', ' ')
     })

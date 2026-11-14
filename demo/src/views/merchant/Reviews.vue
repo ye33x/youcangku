@@ -21,7 +21,7 @@
           <div v-if="r.reply" class="reply"><b>我的回复：</b>{{ r.reply }}</div>
           <div class="ops">
             <el-button size="small" @click="openReply(r)">{{ r.reply ? '修改回复' : '回复评价' }}</el-button>
-            <span v-if="r.status === '待审核'" class="muted small">等待平台审核中，暂不可在前台展示</span>
+            <span v-if="r.status === '待人工复核'" class="muted small">等待平台审核中，暂不可在前台展示</span>
           </div>
         </div>
       </AsyncBlock>

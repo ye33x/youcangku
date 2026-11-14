@@ -131,7 +131,7 @@ export async function fetchStats(scope = 'merchant', merchantId = null) {
     revenue: +paidOrders.reduce((s, o) => s + o.payAmount, 0).toFixed(2),
     productCount: scopeProducts.length,
     pendingShip: scopeOrders.filter((o) => o.status === 1).length,
-    pendingAudit: reviews.filter((r) => r.status === '待审核').length,
+    pendingAudit: reviews.filter((r) => r.status === '待人工复核').length,
     merchantCount: merchants.length,
     userCount: users.length,
     categoryStats: Object.entries(
