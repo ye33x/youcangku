@@ -24,6 +24,7 @@ import MerchantShop from '../views/merchant/Shop.vue'
 
 import AdminDashboard from '../views/admin/Dashboard.vue'
 import AdminAccounts from '../views/admin/Accounts.vue'
+import AdminOrders from '../views/admin/Orders.vue'
 import AdminCategories from '../views/admin/Categories.vue'
 import AdminNotices from '../views/admin/Notices.vue'
 import AdminReviews from '../views/admin/Reviews.vue'
@@ -71,6 +72,7 @@ const routes = [
       { path: '', redirect: '/admin/dashboard' },
       { path: 'dashboard', component: AdminDashboard, meta: { title: '平台总览' } },
       { path: 'accounts', component: AdminAccounts, meta: { title: '账号管理' } },
+      { path: 'orders', component: AdminOrders, meta: { title: '订单管理' } },
       { path: 'categories', component: AdminCategories, meta: { title: '分类管理' } },
       { path: 'notices', component: AdminNotices, meta: { title: '公告管理' } },
       { path: 'reviews', component: AdminReviews, meta: { title: '评价审核' } },

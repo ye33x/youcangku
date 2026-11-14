@@ -65,6 +65,7 @@ const merchantMenus = [
 const adminMenus = [
   { path: '/admin/dashboard', label: '平台总览', icon: Odometer },
   { path: '/admin/accounts', label: '账号管理', icon: User },
+  { path: '/admin/orders', label: '订单管理', icon: List },
   { path: '/admin/categories', label: '分类管理', icon: Menu },
   { path: '/admin/notices', label: '公告管理', icon: Bell },
   { path: '/admin/reviews', label: '评价审核', icon: ChatDotRound },
