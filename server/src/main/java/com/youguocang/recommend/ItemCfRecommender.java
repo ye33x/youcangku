@@ -29,14 +29,17 @@ public class ItemCfRecommender {
     /**
      * @param userItems    用户对商品的兴趣权重（商品 ID → 权重）
      * @param cooccurrence 商品共现矩阵：商品 ID → (关联商品 ID → 共现次数)
+     * @param itemTotals   每个商品的共现总次数：商品 ID → Σ co(该商品, *)，用于余弦归一化
      * @param exclude      需要排除的商品（用户已浏览/已购买，不再推荐）
      * @param topN         返回条数
      */
     public List<ScoredItem> recommend(Map<Long, Double> userItems,
                                       Map<Long, Map<Long, Integer>> cooccurrence,
+                                      Map<Long, Integer> itemTotals,
                                       Set<Long> exclude,
                                       int topN) {
-        if (userItems == null || userItems.isEmpty() || cooccurrence == null || cooccurrence.isEmpty() || topN <= 0) {
+        if (userItems == null || userItems.isEmpty() || cooccurrence == null || cooccurrence.isEmpty()
+                || itemTotals == null || itemTotals.isEmpty() || topN <= 0) {
             return List.of();
         }
         Set<Long> excluded = exclude == null ? Set.of() : exclude;
@@ -55,7 +58,7 @@ public class ItemCfRecommender {
             if (row == null || row.isEmpty()) {
                 continue;
             }
-            int sourceTotal = sumValues(row);
+            int sourceTotal = itemTotals.getOrDefault(sourceId, 0);
             if (sourceTotal <= 0) {
                 continue;
             }
@@ -67,7 +70,9 @@ public class ItemCfRecommender {
                         || coCount == null || coCount <= 0) {
                     continue;
                 }
-                int candidateTotal = sumValues(cooccurrence.get(candidateId));
+                // 归一化分母来自独立的聚合查询，不能只靠已加载的共现行推算：
+                // 共现表按双向存储，用户只看了 A 时，候选商品 B 的那一行并没有被加载进来。
+                int candidateTotal = itemTotals.getOrDefault(candidateId, 0);
                 if (candidateTotal <= 0) {
                     continue;
                 }
@@ -90,18 +95,5 @@ public class ItemCfRecommender {
         }
         result.sort(Comparator.comparingDouble(ScoredItem::score).reversed());
         return result.size() > topN ? result.subList(0, topN) : result;
-    }
-
-    private static int sumValues(Map<Long, Integer> row) {
-        if (row == null || row.isEmpty()) {
-            return 0;
-        }
-        int total = 0;
-        for (Integer value : row.values()) {
-            if (value != null && value > 0) {
-                total += value;
-            }
-        }
-        return total;
     }
 }

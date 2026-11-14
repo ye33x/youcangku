@@ -70,23 +70,26 @@ public class RecommendService {
 
         RecommendStrategy strategy;
         List<ScoredItem> scored;
-        Map<Long, String> reasonByProduct = new HashMap<>();
         Map<Long, Integer> hotRank = new LinkedHashMap<>();
+        // 热销名次在两种策略下都会用到（混合补位时同样需要给出「第 N 名」）
+        for (int i = 0; i < hotProducts.size(); i++) {
+            hotRank.put(hotProducts.get(i).getId(), i + 1);
+        }
 
         if (userWeights.isEmpty()) {
             // 冷启动：完全没有行为数据
             strategy = RecommendStrategy.COLD_START;
             scored = coldStartRecommender.recommend(hotProducts, topN);
-            for (int i = 0; i < hotProducts.size(); i++) {
-                hotRank.put(hotProducts.get(i).getId(), i + 1);
-            }
         } else {
             Map<Long, Map<Long, Integer>> cooccurrence = loadCooccurrence(userWeights.keySet());
+            Map<Long, Integer> itemTotals = loadItemTotals();
             scored = new ArrayList<>(itemCfRecommender.recommend(
-                    userWeights, cooccurrence, userWeights.keySet(), topN));
+                    userWeights, cooccurrence, itemTotals, userWeights.keySet(), topN));
 
             boolean sparse = userWeights.size() < properties.getColdStartThreshold();
-            if (sparse || scored.isEmpty()) {
+            // 协同过滤命中不足时用热销补位：列表总是填满，但策略标记为 HYBRID，
+            // 让调用方与推荐日志能区分「算法结果」和「热门兜底」。
+            if (sparse || scored.size() < topN) {
                 strategy = RecommendStrategy.HYBRID;
                 scored = fillWithHot(scored, hotProducts, topN);
             } else {
@@ -145,6 +148,27 @@ public class RecommendService {
                     .put(row.getRelatedId(), row.getCoCount());
         }
         return matrix;
+    }
+
+    /**
+     * 加载每个商品的共现总次数。
+     *
+     * <p>必须单独聚合，不能从已加载的共现行里求和：共现表按双向存储，
+     * 用户只看过 A 时，候选商品 B 的那一行并不会被 {@link #loadCooccurrence} 取出来，
+     * 用它求和会得到 0，进而把候选全部过滤掉。
+     */
+    private Map<Long, Integer> loadItemTotals() {
+        List<WeightedItem> rows = cooccurMapper.selectItemTotals();
+        if (rows == null || rows.isEmpty()) {
+            return Map.of();
+        }
+        Map<Long, Integer> totals = new HashMap<>(rows.size());
+        for (WeightedItem row : rows) {
+            if (row.getProductId() != null && row.getWeight() != null) {
+                totals.put(row.getProductId(), row.getWeight().intValue());
+            }
+        }
+        return totals;
     }
 
     private List<Product> loadHotProducts(Long categoryId, int limit) {

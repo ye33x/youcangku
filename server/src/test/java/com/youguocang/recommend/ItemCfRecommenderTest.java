@@ -22,11 +22,10 @@ class ItemCfRecommenderTest {
     @Test
     void shouldRecommendCooccurringItemAndTrackSource() {
         Map<Long, Map<Long, Integer>> cooccurrence = Map.of(
-                1L, Map.of(2L, 3),
-                2L, Map.of(1L, 3, 3L, 2),
-                3L, Map.of(2L, 2));
+                1L, Map.of(2L, 3));
+        Map<Long, Integer> totals = Map.of(1L, 3, 2L, 3);
 
-        List<ScoredItem> result = recommender.recommend(Map.of(1L, 1.0), cooccurrence, Set.of(), 5);
+        List<ScoredItem> result = recommender.recommend(Map.of(1L, 1.0), cooccurrence, totals, Set.of(), 5);
 
         assertEquals(1, result.size());
         assertEquals(2L, result.get(0).productId());
@@ -34,14 +33,32 @@ class ItemCfRecommenderTest {
         assertTrue(result.get(0).score() > 0, "得分应为正数");
     }
 
+    /**
+     * 回归测试：候选商品的共现行没有被加载，也必须能算出得分。
+     *
+     * <p>共现表双向存储。用户只看过商品 1，查询只带回 product_id=1 的行；
+     * 若用「已加载行求和」当作候选的归一化分母，会得到 0 从而把候选 2 过滤掉。
+     */
+    @Test
+    void shouldScoreCandidateWhoseOwnRowWasNotLoaded() {
+        Map<Long, Map<Long, Integer>> cooccurrence = Map.of(
+                1L, Map.of(2L, 3));
+        Map<Long, Integer> totals = Map.of(1L, 3, 2L, 3);
+
+        List<ScoredItem> result = recommender.recommend(Map.of(1L, 1.0), cooccurrence, totals, Set.of(), 5);
+
+        assertFalse(result.isEmpty(), "候选商品缺失自身共现行时仍应被推荐");
+        assertEquals(2L, result.get(0).productId());
+    }
+
     /** 已交互过的商品必须被排除。 */
     @Test
     void shouldExcludeInteractedItems() {
         Map<Long, Map<Long, Integer>> cooccurrence = Map.of(
-                1L, Map.of(2L, 3),
-                2L, Map.of(1L, 3));
+                1L, Map.of(2L, 3));
+        Map<Long, Integer> totals = Map.of(1L, 3, 2L, 3);
 
-        List<ScoredItem> result = recommender.recommend(Map.of(1L, 1.0), cooccurrence, Set.of(2L), 5);
+        List<ScoredItem> result = recommender.recommend(Map.of(1L, 1.0), cooccurrence, totals, Set.of(2L), 5);
 
         assertTrue(result.isEmpty());
     }
@@ -49,18 +66,17 @@ class ItemCfRecommenderTest {
     /** 无行为数据时不应抛异常，直接返回空列表，由上层走冷启动。 */
     @Test
     void shouldReturnEmptyForColdUser() {
-        assertTrue(recommender.recommend(Map.of(), Map.of(), Set.of(), 5).isEmpty());
+        assertTrue(recommender.recommend(Map.of(), Map.of(), Map.of(), Set.of(), 5).isEmpty());
     }
 
     /** 结果按得分倒序。 */
     @Test
     void shouldSortByScoreDescending() {
         Map<Long, Map<Long, Integer>> cooccurrence = Map.of(
-                1L, Map.of(2L, 5, 3L, 1),
-                2L, Map.of(1L, 5),
-                3L, Map.of(1L, 1));
+                1L, Map.of(2L, 5, 3L, 1));
+        Map<Long, Integer> totals = Map.of(1L, 6, 2L, 5, 3L, 1);
 
-        List<ScoredItem> result = recommender.recommend(Map.of(1L, 1.0), cooccurrence, Set.of(), 5);
+        List<ScoredItem> result = recommender.recommend(Map.of(1L, 1.0), cooccurrence, totals, Set.of(), 5);
 
         assertFalse(result.isEmpty());
         for (int i = 1; i < result.size(); i++) {
