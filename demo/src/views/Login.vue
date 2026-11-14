@@ -4,10 +4,8 @@
       <h1>🌰 优果仓</h1>
       <p class="slogan">干果电商平台 · 界面与流程演示</p>
       <div class="roles">
-        <div
-          v-for="r in roles" :key="r.value" class="role-card"
-          :class="{ active: form.role === r.value }" @click="pickRole(r.value)"
-        >
+        <div v-for="r in roles" :key="r.value" class="role-card"
+          :class="{ active: form.role === r.value }" @click="pickRole(r.value)">
           <div class="role-icon">{{ r.icon }}</div>
           <div class="role-name">{{ r.label }}</div>
           <div class="role-desc">{{ r.desc }}</div>
@@ -19,7 +17,9 @@
     <div class="form-side">
       <div class="form-card">
         <h2>登录{{ currentRoleLabel }}</h2>
+
         <el-alert v-if="errorMsg" :title="errorMsg" type="error" show-icon :closable="false" class="mb" />
+
         <el-form :model="form" label-position="top" @submit.prevent="onSubmit">
           <el-form-item label="账号">
             <el-input v-model="form.account" placeholder="用户名 / 手机号" :prefix-icon="User" />
@@ -40,6 +40,13 @@
           </el-link>
         </div>
 
+        <div class="reg-links">
+          <span class="muted">还没有账号？</span>
+          <el-link type="primary" :underline="false" @click="goRegister('USER')">注册用户账号</el-link>
+          <span class="muted">·</span>
+          <el-link type="primary" :underline="false" @click="goRegister('MERCHANT')">商家入驻</el-link>
+        </div>
+
         <el-divider />
         <p class="hint">演示密码统一为 <b>123456</b>；密码输错会触发错误提示，可观察表单错误态。</p>
       </div>
@@ -48,7 +55,7 @@
 </template>
 
 <script setup>
-import { computed, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { User, Lock } from '@element-plus/icons-vue'
@@ -91,6 +98,22 @@ function quickFill(q) {
   errorMsg.value = ''
 }
 
+function goRegister(role) {
+  router.push({ path: '/register', query: { role } })
+}
+
+onMounted(() => {
+  // 从注册页跳回时带上角色与新账号，直接填好
+  const r = route.query.role
+  if (['USER', 'MERCHANT', 'ADMIN'].includes(r)) {
+    form.role = r
+    const preset = roles.find((x) => x.value === r)
+    form.account = route.query.account || preset.account
+  } else if (route.query.account) {
+    form.account = route.query.account
+  }
+})
+
 async function onSubmit() {
   errorMsg.value = ''
   loading.value = true
@@ -125,5 +148,6 @@ async function onSubmit() {
 .form-card h2 { margin: 0 0 20px; }
 .mb { margin-bottom: 16px; }
 .quick { margin-top: 18px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 13px; }
+.reg-links { margin-top: 14px; display: flex; align-items: center; gap: 8px; font-size: 13px; }
 .hint { font-size: 12px; color: var(--ygc-muted); line-height: 1.7; }
 </style>

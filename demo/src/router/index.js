@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import store from '../store'
 
 import Login from '../views/Login.vue'
+import Register from '../views/Register.vue'
 import ShopLayout from '../layouts/ShopLayout.vue'
 import ConsoleLayout from '../layouts/ConsoleLayout.vue'
 
@@ -32,6 +33,7 @@ import AdminLogs from '../views/admin/Logs.vue'
 
 const routes = [
   { path: '/login', component: Login, meta: { public: true, title: '登录' } },
+  { path: '/register', component: Register, meta: { public: true, title: '注册' } },
   {
     path: '/',
     component: ShopLayout,
